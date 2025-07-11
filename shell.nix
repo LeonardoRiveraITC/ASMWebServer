@@ -9,8 +9,6 @@ let
 		    #pkgs.slirp4netns
 		    pkgs.gcc
 		    pkgs.gdb
-		    pkgs.qemu
-		    pkgs.podman
-		    pkgsphp.openssl
+		    pkgs.strace
 	    ];
 }
