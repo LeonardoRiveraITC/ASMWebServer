@@ -13,12 +13,17 @@ _start:
 	mov rax,49
 	sub rsp,16 #SOCKADDR_IN
 		mov WORD PTR [rsp],2 #sin_family
-		mov WORD PTR [rsp+2],0x1212
+		mov WORD PTR [rsp+2],0x5000
 		mov DWORD PTR[rsp+4],0x0
 		mov BYTE PTR[rsp+8],0x0
 	mov rsi,rsp
 	mov rdx,16
 	syscall
+	#listen
+	mov rax,50
+	mov rsi,10
+	syscall
+
 end:
 	mov rax,60
 	mov rdi,0
