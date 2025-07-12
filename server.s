@@ -11,13 +11,13 @@ _start:
 	#bind
 	mov rdi,rax
 	mov rax,49
-	sub rsp,72 #SOCKADDR_IN
+	sub rsp,16 #SOCKADDR_IN
 		mov WORD PTR [rsp],2 #sin_family
-		mov WORD PTR [rsp+16],8080
-		mov DWORD PTR[rsp+32],0
-		mov BYTE PTR[rsp+64],0x0
+		mov WORD PTR [rsp+2],0x1212
+		mov DWORD PTR[rsp+4],0x0
+		mov BYTE PTR[rsp+8],0x0
 	mov rsi,rsp
-	mov rdx,64
+	mov rdx,16
 	syscall
 end:
 	mov rax,60
