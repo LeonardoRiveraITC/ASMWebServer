@@ -1,10 +1,23 @@
 .intel_syntax noprefix
 .global _start
 _start:
+	#socket
 	mov rax,41
 	mov rdi,2 #AF_INET
-	mov rdx,1 #SOCK_STREAM
+	mov rsi,1 #SOCK_STREAM
 	mov rdx,0
+	syscall
+	
+	#bind
+	mov rdi,rax
+	mov rax,49
+	sub rsp,72 #SOCKADDR_IN
+		mov WORD PTR [rsp],2 #sin_family
+		mov WORD PTR [rsp+16],8080
+		mov DWORD PTR[rsp+32],0
+		mov BYTE PTR[rsp+64],0x0
+	mov rsi,rsp
+	mov rdx,64
 	syscall
 end:
 	mov rax,60
