@@ -38,10 +38,19 @@ response:
 	mov rdx,2048
 	syscall
 	
-	#parse request
+	#parse request path
 	mov r10,rsp
 	sub rsp,2048
-	call parse
+	call path
+	nop
+	add r10,r14
+	mov rsp,r10
+	mov rcx,rax
+	
+	#
+
+	#parse request method
+	
 
 	#response
 	mov rax,1
@@ -50,6 +59,8 @@ response:
 	mov rsi,rsp
 	mov rdx,19
 	syscall
+	
+
 	
 	#close fd
 	mov rax,3
@@ -62,15 +73,27 @@ end:
         syscall
 
 
-parse:	
+path:	
 	#get the requested path
+	#remove verb
 	mov ecx, 2048
 	mov rdi,r10
-	mov al, 'f'
+	mov al, '/'
 	cld
 	repne scasb
-	int3
-	je end
+	neg ecx
+	add ecx,2048
+	mov r14,rcx
+	#remove headers
+	mov ecx, 2048
+	mov rdi,rdi
+	mov al, ' '
+	cld
+	repne scasb
+	neg rcx
+	add rcx,2048
+	mov rax,rcx
+	ret
 	#jump to method handler
 	#cmp BYTE PTR[rax],'G'
 	#je get
