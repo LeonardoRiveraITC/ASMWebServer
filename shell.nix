@@ -10,5 +10,6 @@ let
 		    pkgs.gcc
 		    pkgs.gdb
 		    pkgs.strace
+		    pkgs.valgrind
 	    ];
 }
