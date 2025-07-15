@@ -1,3 +1,4 @@
+.comm fpath,64,2048
 .intel_syntax noprefix
 .global _start
 _start:
@@ -43,12 +44,7 @@ response:
 	sub rsp,2048
 	call path
 	nop
-	add r10,r14
-	mov rsp,r10
-	mov rcx,rax
-	
-	#
-
+	int3
 	#parse request method
 	
 
@@ -81,22 +77,17 @@ path:
 	mov al, '/'
 	cld
 	repne scasb
-	neg ecx
-	add ecx,2048
-	mov r14,rcx
-	#remove headers
-	mov ecx, 2048
-	mov rdi,rdi
-	mov al, ' '
-	cld
-	repne scasb
-	neg rcx
-	add rcx,2048
-	mov rax,rcx
+	mov ecx,2048
+	mov rax,-1
+	int3
+	#store path into buffer
+	file:
+		inc rax
+		cmp BYTE PTR [rdi+rax],' ' 
+		mov dl,BYTE PTR [rdi+rax]
+		mov BYTE PTR[offset fpath+rax],dl
+		jne file
+	mov rax, offset fpath
+	nop
+	int3
 	ret
-	#jump to method handler
-	#cmp BYTE PTR[rax],'G'
-	#je get
-	#cmp BYTE PTR[rax],'P'
-	#je post
-	#jmp end
