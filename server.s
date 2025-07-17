@@ -23,7 +23,6 @@ _start:
         #listen
         mov rax,50
         mov rsi,0
-	mov r9,rdi #store accepted socket for later use
         syscall
 
 response:
@@ -33,13 +32,16 @@ response:
 	mov rdx,0
 	syscall
 	mov rdi,rax
-
+	
 	#read http request
 	mov rax,0
 	sub rsp,2048
 	mov rsi,rsp
 	mov rdx,2048
 	syscall
+	
+	mov r9,rdi #store accepted socket for later use
+	
 	#parse request path
 	mov r10,rsp
 	call path
@@ -54,17 +56,16 @@ response:
 	syscall
 	
 	#read file into buffer
-	sub rsp,2048
 	mov rdi,rax
 	mov rax,0
-	mov rsi,rsp
+	mov rsi,offset OK + 19
 	mov rdx,2048
 	syscall
 
 	#write into socket
 	mov rax,1
 	mov rdi,r9
-	mov rsi,rsp
+	sub rsi,19
 	mov rdx,2048
 	syscall
 	
@@ -111,3 +112,6 @@ path:
 		jmp file
 	cleanup:
 		ret
+
+.data
+   OK: .ascii "HTTP/1.0 200 OK\r\n\r\n"
