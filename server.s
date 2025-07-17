@@ -19,9 +19,11 @@ _start:
         mov rsi,rsp
         mov rdx,16
         syscall
+	add rsp,16
         #listen
         mov rax,50
         mov rsi,0
+	mov r9,rdi #store accepted socket for later use
         syscall
 
 response:
@@ -38,32 +40,52 @@ response:
 	mov rsi,rsp
 	mov rdx,2048
 	syscall
-	
 	#parse request path
 	mov r10,rsp
-	sub rsp,2048
 	call path
-	nop
-	int3
-	#parse request method
+
+	add rsp,2048
+
+	#open file
+	mov rdi,offset fpath
+	mov rdx,0
+	mov rsi,0100000
+	mov rax,2
+	syscall
+	
+	#read file into buffer
+	sub rsp,2048
+	mov rdi,rax
+	mov rax,0
+	mov rsi,rsp
+	mov rdx,2048
+	syscall
+
+	#write into socket
+	mov rax,1
+	mov rdi,r9
+	mov rsi,rsp
+	mov rdx,2048
+	syscall
 	
 
+	#parse request method
+
 	#response
-	mov rax,1
-	sub rsp,19 #HTTP/1.0 200 OK
-                mov BYTE PTR [rsp], 0x48
-	mov rsi,rsp
-	mov rdx,19
-	syscall
+########mov rax,1
+########sub rsp,19 #HTTP/1.0 200 OK
+########        mov BYTE PTR [rsp], 0x48
+########mov rsi,rsp
+########mov rdx,19
+########syscall
 	
 
 	
 	#close fd
-	mov rax,3
-	syscall
+	#mov rax,3
+	#syscall
 
 end:
-	int3
         mov rax,60
         mov rdi,0
         syscall
@@ -78,16 +100,14 @@ path:
 	cld
 	repne scasb
 	mov ecx,2048
-	mov rax,-1
-	int3
+	mov rax,0
 	#store path into buffer
 	file:
-		inc rax
 		cmp BYTE PTR [rdi+rax],' ' 
+		je cleanup
 		mov dl,BYTE PTR [rdi+rax]
 		mov BYTE PTR[offset fpath+rax],dl
-		jne file
-	mov rax, offset fpath
-	nop
-	int3
-	ret
+		inc rax
+		jmp file
+	cleanup:
+		ret
