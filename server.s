@@ -63,10 +63,11 @@ response:
 	syscall
 
 	#write into socket
+	mov rdx,rax
+	add rdx,19
 	mov rax,1
 	mov rdi,r9
 	sub rsi,19
-	mov rdx,2048
 	syscall
 	
 
