@@ -48,27 +48,36 @@ response:
 
 	add rsp,2048
 
+	#write ok into socket
+	mov rax,1
+	mov rsi,offset OK
+	mov rdi,r9
+	mov rdx,19
+	syscall
+
 	#open file
 	mov rdi,offset fpath
 	mov rdx,0
-	mov rsi,0100000
+	mov rsi,0000000
 	mov rax,2
 	syscall
+
 	
 	#read file into buffer
+	sub rsp,2048
 	mov rdi,rax
 	mov rax,0
-	mov rsi,offset OK + 19
+	mov rsi,rsp
 	mov rdx,2048
 	syscall
 
-	#write into socket
+	#write file into socket
 	mov rdx,rax
-	add rdx,19
 	mov rax,1
 	mov rdi,r9
-	sub rsi,19
+	#rsi - rsp
 	syscall
+
 	
 
 	#parse request method
