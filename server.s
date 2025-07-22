@@ -18,6 +18,9 @@ _start:
                 mov BYTE PTR[rsp+8],0x0
         mov rsi,rsp
         mov rdx,16
+
+	mov r13,rdi #descriptor of listening socket
+
         syscall
         add rsp,16
         #listen
@@ -30,6 +33,7 @@ response:
         mov rax,43
         mov rsi,0
         mov rdx,0
+	mov rdi,r13
         syscall
         mov rdi,rax
 
@@ -91,6 +95,8 @@ end:
         mov rdi,r9
         syscall
 
+	jmp response
+
         mov rax,60
         mov rdi,0
         syscall
@@ -101,7 +107,7 @@ path:
         #remove verb
         mov ecx, 2048
         mov rdi,r10
-        mov al, ' '
+        mov al, '/'
         cld
         repne scasb
         mov ecx,2048
