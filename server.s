@@ -8,7 +8,10 @@ _start:
         mov rsi,1 #SOCK_STREAM
         mov rdx,0
         syscall
-        #bind
+
+        mov r13,rax #descriptor of listening socket
+
+	#bind
         mov rdi,rax
         mov rax,49
         sub rsp,16 #SOCKADDR_IN
@@ -18,17 +21,16 @@ _start:
                 mov BYTE PTR[rsp+8],0x0
         mov rsi,rsp
         mov rdx,16
-
-	mov r13,rdi #descriptor of listening socket
-
         syscall
+
         add rsp,16
         #listen
         mov rax,50
         mov rsi,0
         syscall
+
 response:
-	
+
 	#accept http request
         mov rax,43
         mov rsi,0
@@ -39,12 +41,17 @@ response:
         mov rdi,rax
 	mov r14,rax
 
+	#fork
 	mov rax,57
 	syscall
 
 	cmp rax,0
 	jne end
 
+        #close socket fd
+        mov rax,3
+        mov rdi,r13
+        syscall
 
         #read http request
         mov rax,0
@@ -96,17 +103,13 @@ response:
         mov rdi,r14
         syscall
 
-        #close socket fd
-        mov rax,3
-        mov rdi,r14
-        syscall
-
+        #exit 0
         mov rax,60
         mov rdi,0
         syscall
 
 end:
-        #close socket fd
+        #close connection fd
         mov rax,3
         mov rdi,r14
         syscall
@@ -142,3 +145,4 @@ path:
 .data
    OK: .ascii "HTTP/1.0 200 OK\r\n\r\n"
    content: .ascii ""
+
