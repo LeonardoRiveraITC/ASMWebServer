@@ -61,7 +61,7 @@ response:
         mov rdx,2048
         syscall
 
-        #parse request path
+        #parse request path and get request method
         mov r10,rsp
         call path
 
@@ -74,6 +74,11 @@ response:
         mov rax,2
         syscall
         mov r8,rax #file fd
+	
+	int3
+	cmp r9,'P'
+	je post
+	int3
 
         #read file into stack
         mov rdi,rax
@@ -108,6 +113,15 @@ response:
         mov rdi,0
         syscall
 
+post:
+	#write into file
+	nop
+	int3
+        #exit 0
+        mov rax,60
+        mov rdi,0
+        syscall
+	
 end:
         #close connection fd
         mov rax,3
@@ -123,7 +137,8 @@ end:
 
 path:
         #get the requested path
-        #remove verb
+        #remove and store req verb
+	mov r9b,BYTE PTR [r10]
         mov ecx, 2048
         mov rdi,r10
         mov al, '/'
@@ -142,7 +157,10 @@ path:
         cleanup:
                 ret
 
+
+
 .data
    OK: .ascii "HTTP/1.0 200 OK\r\n\r\n"
    content: .ascii ""
-
+   data: .ascii ""
+   verb: .ascii ""

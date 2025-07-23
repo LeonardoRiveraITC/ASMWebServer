@@ -11,5 +11,6 @@ let
 		    pkgs.gdb
 		    pkgs.strace
 		    pkgs.valgrind
+		    pkgs.killall
 	    ];
 }
