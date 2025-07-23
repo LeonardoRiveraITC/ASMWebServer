@@ -27,24 +27,32 @@ _start:
         mov rax,50
         mov rsi,0
         syscall
-
 response:
-        #accept http request
+	
+	#accept http request
         mov rax,43
         mov rsi,0
         mov rdx,0
 	mov rdi,r13
         syscall
+
         mov rdi,rax
+	mov r14,rax
+
+	mov rax,57
+	syscall
+
+	cmp rax,0
+	jne end
+
 
         #read http request
         mov rax,0
+	mov rdi,r14
         sub rsp,2048
         mov rsi,rsp
         mov rdx,2048
         syscall
-
-        mov r9,rdi #store accepted socket for later use
 
         #parse request path
         mov r10,rsp
@@ -77,7 +85,7 @@ response:
         #write ok into socket
         mov rax,1
         mov rsi,offset OK
-        mov rdi,r9
+        mov rdi,r14
         mov rdx,19
         syscall
 
@@ -85,14 +93,22 @@ response:
         mov rdx,r12
         mov rsi,offset content
         mov rax,1
-        mov rdi,r9
+        mov rdi,r14
         syscall
 
+        #close socket fd
+        mov rax,3
+        mov rdi,r14
+        syscall
+
+        mov rax,60
+        mov rdi,0
+        syscall
 
 end:
         #close socket fd
         mov rax,3
-        mov rdi,r9
+        mov rdi,r14
         syscall
 
 	jmp response
