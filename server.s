@@ -39,7 +39,7 @@ response:
         syscall
 
         mov rdi,rax
-	mov r14,rax
+	mov r14,rax #tcp connection w client
 
 	#fork
 	mov rax,57
@@ -60,6 +60,9 @@ response:
         mov rsi,rsp
         mov rdx,2048
         syscall
+	mov r15,rax
+	mov rdx,0
+	nop
 
         #parse request path and get request method
         mov r10,rsp
@@ -67,19 +70,19 @@ response:
 
         add rsp,2048
 
+	cmp r9,'P'
+	mov rdi,r10
+	mov r11,0
+	je post
+
         #open file
         mov rdi,offset fpath
         mov rdx,0
         mov rsi,0000000
         mov rax,2
         syscall
-        mov r8,rax #file fd
-	
-	int3
-	cmp r9,'P'
-	je post
-	int3
 
+        mov r8,rax #file fd
         #read file into stack
         mov rdi,rax
         mov rax,0
@@ -114,9 +117,43 @@ response:
         syscall
 
 post:
+	#get the content length
+        mov ecx, 4068
+        mov al, '\n'
+        cld
+	mov data,rdi
+        repne scasb
+	neg ecx
+	add ecx,4068
+	add r11d,ecx
+	cmp BYTE PTR [rdi],'\r'
+	jne post
+	
+	#length until content
+	sub r15d,r11d
+	sub r15d,2 #remove carriage return 
+	add rdi,2
+
+        #open file with write flags
+	mov rbx,rdi
+        mov rdi,offset fpath
+        mov rdx,0
+        mov rsi,0000001
+        mov rax,2
+        syscall
 	#write into file
-	nop
-	int3
+	mov rdi,rax
+	mov rax,1
+	mov rsi,rbx
+	mov rdx,r15
+	syscall
+        #write ok into socket
+        mov rax,1
+        mov rsi,offset OK
+        mov rdi,r14
+        mov rdx,19
+        syscall
+
         #exit 0
         mov rax,60
         mov rdi,0
@@ -163,4 +200,4 @@ path:
    OK: .ascii "HTTP/1.0 200 OK\r\n\r\n"
    content: .ascii ""
    data: .ascii ""
-   verb: .ascii ""
+   carriage: .ascii "\n\r\n"
