@@ -137,8 +137,8 @@ post:
         #open file with write flags
 	mov rbx,rdi
         mov rdi,offset fpath
-        mov rdx,0
-        mov rsi,0000001
+        mov rsi,0x41# flags
+        mov rdx,0777 #file permission umask
         mov rax,2
         syscall
 	#write into file
@@ -178,7 +178,7 @@ path:
 	mov r9b,BYTE PTR [r10]
         mov ecx, 2048
         mov rdi,r10
-        mov al, '/'
+        mov al, ' '
         cld
         repne scasb
         mov ecx,2048
@@ -201,3 +201,4 @@ path:
    content: .ascii ""
    data: .ascii ""
    carriage: .ascii "\n\r\n"
+
